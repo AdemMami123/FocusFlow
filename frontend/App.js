@@ -1,6 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import timerScreen from "./screens/timerScreen";
 import historyScreens from "./screens/historyScreens";
+import settings from "./screens/settings";
+
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from '@expo/vector-icons';
 
@@ -35,6 +37,15 @@ export default function App() {
           options={{
             tabBarIcon: ({ color, size }) => (
               <FontAwesome5 name="history" size={22} color={color} />
+            ),
+          }}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={settings} 
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome5 name="cog" size={22} color={color} />
             ),
           }}
         />
