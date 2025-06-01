@@ -4,6 +4,10 @@ import React from "react";
 import axios from "axios";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { Calendar } from 'react-native-calendars';
+
+
+
 
 // Default times in seconds
 const DEFAULT_WORK_TIME = 25 * 60;
@@ -29,6 +33,20 @@ export default function timerScreen() {
   const [tempWorkMinutes, setTempWorkMinutes] = useState(String(Math.floor(workTime / 60)));
   const [tempBreakMinutes, setTempBreakMinutes] = useState(String(Math.floor(breakTime / 60)));
   
+  const [showModal, setShowModal] = useState(false);
+  const [projectName, setProjectName] = useState("");
+ 
+  
+  const [beginDate, setBeginDate] = useState(new Date());
+  const [deadline, setDeadline] = useState(new Date());
+
+  const [showBeginDateCalendar, setShowBeginDateCalendar] = useState(false);
+const [showDeadlineCalendar, setShowDeadlineCalendar] = useState(false);
+
+  
+
+
+
   const intervalRef = useRef(null);
 
   // Initialize the timer with Work_Time
@@ -94,6 +112,42 @@ export default function timerScreen() {
     
     setShowSettings(false);
   };
+  //handle project creation
+  const handleCreateProject=async()=>{
+    try {
+      await axios.post("http://10.0.2.2:5000/projects", {
+        name: projectName,
+        beginDate: beginDate.toISOString(),
+        deadline: deadline.toISOString(),
+      }
+    );
+    //reset form fields
+    setProjectName("");
+    setBeginDate(new Date());
+    setDeadline(new Date());
+    setShowModal(false);
+    
+    setTimeout(() => {
+      alert("Project created successfully!");
+    }, 1500);
+    
+    } catch (error) {
+      console.error("Error creating project:", error);
+      alert("Failed to create project. Please try again.");
+      
+    }
+  }
+  
+  
+  const createProject=async()=>{
+    try {
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error creating project:", error);
+      
+    }
+   
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -144,6 +198,8 @@ export default function timerScreen() {
         </TouchableOpacity>
       </View>
       
+      
+       
       <TouchableOpacity 
         style={styles.settingsButton} 
         onPress={() => setShowSettings(true)}>
@@ -200,14 +256,158 @@ export default function timerScreen() {
           </View>
         </View>
       </Modal>
+      <View style={[styles.projectCard, { backgroundColor: theme.surface }]}>
+  <Text style={[styles.projectCardTitle, { color: theme.text }]}>Project Management</Text>
+  <Text style={styles.cardText}>Track and organize your development tasks</Text>
+  <TouchableOpacity 
+    style={[styles.projectButton, { backgroundColor: "#4263EB" }]} 
+    onPress={createProject}
+  >
+    <FontAwesome5 name="plus" size={18} color="#FFFFFF" style={styles.buttonIcon} />
+    <Text style={styles.projectButtonText}>Create New Project</Text>
+  </TouchableOpacity>
+</View>
+      {/* Project Creation Modal */}
+      <Modal
+  visible={showModal}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={() => setShowModal(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Create New Project</Text>
+      
+      <View style={styles.formGroup}>
+        <Text style={styles.settingLabel}>Project Name:</Text>
+        <TextInput
+          style={styles.settingInput}
+          value={projectName}
+          onChangeText={setProjectName}
+          placeholder="Enter project name"
+        />
+      </View>
+      
+      <View style={styles.formGroup}>
+  <Text style={styles.settingLabel}>Start Date:</Text>
+  <TouchableOpacity 
+    style={styles.dateSelector}
+    onPress={() => setShowBeginDateCalendar(true)}
+  >
+    <Text style={styles.dateSelectorText}>
+      {beginDate ? beginDate.toISOString().split('T')[0] : 'Select start date'}
+    </Text>
+    <FontAwesome5 name="calendar-alt" size={18} color="#6C757D" />
+  </TouchableOpacity>
+  
+  {showBeginDateCalendar && (
+    <View style={styles.calendarContainer}>
+      <Calendar
+        onDayPress={(day) => {
+          const selectedDate = new Date(day.timestamp);
+          setBeginDate(selectedDate);
+          setShowBeginDateCalendar(false);
+        }}
+        markedDates={{
+          [beginDate.toISOString().split('T')[0]]: {
+            selected: true,
+            selectedColor: '#4263EB'
+          }
+        }}
+        theme={{
+          backgroundColor: '#ffffff',
+          calendarBackground: '#ffffff',
+          textSectionTitleColor: '#495057',
+          selectedDayBackgroundColor: '#4263EB',
+          selectedDayTextColor: '#ffffff',
+          todayTextColor: '#4263EB',
+          dayTextColor: '#212529',
+          textDisabledColor: '#CED4DA',
+          arrowColor: '#4263EB',
+        }}
+      />
+      <TouchableOpacity 
+        style={styles.closeCalendarButton}
+        onPress={() => setShowBeginDateCalendar(false)}
+      >
+        <Text style={styles.closeCalendarButtonText}>Close Calendar</Text>
+      </TouchableOpacity>
     </View>
+  )}
+</View>
+
+<View style={styles.formGroup}>
+  <Text style={styles.settingLabel}>Deadline:</Text>
+  <TouchableOpacity 
+    style={styles.dateSelector}
+    onPress={() => setShowDeadlineCalendar(true)}
+  >
+    <Text style={styles.dateSelectorText}>
+      {deadline ? deadline.toISOString().split('T')[0] : 'Select deadline date'}
+    </Text>
+    <FontAwesome5 name="calendar-alt" size={18} color="#6C757D" />
+  </TouchableOpacity>
+  
+  {showDeadlineCalendar && (
+    <View style={styles.calendarContainer}>
+      <Calendar
+        onDayPress={(day) => {
+          const selectedDate = new Date(day.timestamp);
+          setDeadline(selectedDate);
+          setShowDeadlineCalendar(false);
+        }}
+        markedDates={{
+          [deadline.toISOString().split('T')[0]]: {
+            selected: true,
+            selectedColor: '#4263EB'
+          }
+        }}
+        theme={{
+          backgroundColor: '#ffffff',
+          calendarBackground: '#ffffff',
+          textSectionTitleColor: '#495057',
+          selectedDayBackgroundColor: '#4263EB',
+          selectedDayTextColor: '#ffffff',
+          todayTextColor: '#4263EB',
+          dayTextColor: '#212529',
+          textDisabledColor: '#CED4DA',
+          arrowColor: '#4263EB',
+        }}
+        minDate={beginDate.toISOString().split('T')[0]} // Optional: Prevent selecting dates before start date
+      />
+      <TouchableOpacity 
+        style={styles.closeCalendarButton}
+        onPress={() => setShowDeadlineCalendar(false)}
+      >
+        <Text style={styles.closeCalendarButtonText}>Close Calendar</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
+      
+      <View style={styles.modalButtons}>
+        <TouchableOpacity 
+          style={[styles.modalButton, styles.cancelButton]} 
+          onPress={() => setShowModal(false)}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.modalButton, styles.saveButton]} 
+          onPress={handleCreateProject}>
+          <Text style={styles.saveButtonText}>Create</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+      
+    </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
-  // ...existing styles...
-  
-  // New styles for settings
   settingsButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -399,5 +599,101 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     marginRight: 8,
-  }
+  },
+  formGroup: {
+  marginBottom: 16,
+},
+projectCard: {
+  backgroundColor: "#FFFFFF",
+  borderRadius: 24,
+  padding: 30,
+  width: '90%',
+  alignItems: 'center',
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.1,
+  shadowRadius: 16,
+  elevation: 8,
+  marginTop: 20,
+},
+projectCardTitle: {
+  fontSize: 22,
+  fontWeight: "700",
+  color: "#212529",
+  marginBottom: 10,
+  textAlign: 'center',
+},
+projectButton: {
+  paddingVertical: 14,
+  paddingHorizontal: 24,
+  borderRadius: 16,
+  backgroundColor: "#4263EB",
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 16,
+  width: '100%',
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+  elevation: 4,
+},
+projectButtonText: {
+  color: "#FFFFFF",
+  fontSize: 16,
+  fontWeight: "600",
+  textAlign: "center",
+},
+buttonIcon: {
+  marginRight: 8,
+},
+cardText: {
+  fontSize: 16,
+  color: "#6C757D",
+  marginBottom: 10,
+  textAlign: 'center',
+},
+// Add these styles to your StyleSheet
+dateSelector: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: '#CED4DA',
+  borderRadius: 8,
+  padding: 12,
+  backgroundColor: '#F8F9FA',
+},
+dateSelectorText: {
+  fontSize: 16,
+  color: '#212529',
+},
+calendarContainer: {
+  marginTop: 10,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 8,
+  padding: 10,
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+  zIndex: 2,
+},
+closeCalendarButton: {
+  backgroundColor: '#F1F3F5',
+  padding: 12,
+  borderRadius: 8,
+  alignItems: 'center',
+  marginTop: 10,
+},
+closeCalendarButtonText: {
+  color: '#495057',
+  fontWeight: '600',
+},
+  
 });

@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI,{
 .catch(err => console.error("MongoDB connection error:", err));
 
 app.use('/sessions', require('./routes/sessions'));
+app.use('/projects',require('./routes/projects'));
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
