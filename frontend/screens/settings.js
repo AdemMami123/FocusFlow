@@ -184,18 +184,7 @@ export default function Settings() {
         </Text>
         
         <View style={styles.settingRow}>
-          <View style={styles.settingLabelContainer}>
-            <FontAwesome5 
-              name="info-circle" 
-              size={18} 
-              color={colors.primary}
-              style={styles.settingIcon} 
-            />
-            <Text style={[styles.settingLabel, { color: colors.text }]}>
-              Version
-            </Text>
-          </View>
-          <Text style={[styles.settingValue, { color: colors.subText }]}>1.0.0</Text>
+          
         </View>
         
         <View style={styles.settingRow}>
@@ -210,7 +199,7 @@ export default function Settings() {
               Developer
             </Text>
           </View>
-          <Text style={[styles.settingValue, { color: colors.subText }]}>Your Name</Text>
+          <Text style={[styles.settingValue, { color: colors.subText }]}>Adem Mami</Text>
         </View>
       </View>
     </ScrollView>

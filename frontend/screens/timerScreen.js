@@ -3,10 +3,11 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import axios from "axios";
 import { FontAwesome5 } from '@expo/vector-icons';
+import { useTheme } from '../theme/ThemeContext';
 
 // Default times in seconds
-const DEFAULT_WORK_TIME = 0.15 * 60;
-const DEFAULT_BREAK_TIME = 0.1 * 60;
+const DEFAULT_WORK_TIME = 25 * 60;
+const DEFAULT_BREAK_TIME = 5 * 60;
 
 const saveOnline = async (sessions) => {
   try {
@@ -17,6 +18,8 @@ const saveOnline = async (sessions) => {
 };
 
 export default function timerScreen() {
+  const { theme } = useTheme();
+  
   const [onBreak, setonBreak] = useState(false);
   const [isRunning, setisRunning] = useState(false);
   const [workTime, setWorkTime] = useState(DEFAULT_WORK_TIME);
@@ -93,10 +96,12 @@ export default function timerScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Focus Flow</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.header, { color: theme.text }]}>
+        Focus Flow
+      </Text>
       
-      <View style={styles.timerCard}>
+      <View style={[styles.timerCard, { backgroundColor: theme.surface }]}>
         <View style={styles.statusContainer}>
           <View 
             style={[styles.statusIndicator, { 
@@ -106,7 +111,9 @@ export default function timerScreen() {
           <Text style={styles.title}>{onBreak ? "Break Time" : "Focus Time"}</Text>
         </View>
         
-        <Text style={styles.timer}>{Formattime(secondsLeft)}</Text>
+        <Text style={[styles.timer, { color: theme.text }]}>
+          {Formattime(secondsLeft)}
+        </Text>
         
         <View style={styles.progressBarContainer}>
           <View 
@@ -125,7 +132,9 @@ export default function timerScreen() {
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: isRunning ? "#FF6B6B" : "#38D9A9" }]} 
           onPress={() => setisRunning(!isRunning)}>
-          <Text style={styles.buttonText}>{isRunning ? "Pause" : "Start"}</Text>
+          <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>
+            {isRunning ? "Pause" : "Start"}
+          </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
